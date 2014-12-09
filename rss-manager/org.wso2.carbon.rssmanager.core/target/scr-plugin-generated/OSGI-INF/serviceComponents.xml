@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><components xmlns:scr="http://www.osgi.org/xmlns/scr/v1.0.0">
+    <scr:component enabled="true" immediate="true" name="rss.manager">
+        <implementation class="org.wso2.carbon.rssmanager.core.internal.RSSManagerServiceComponent"/>
+        <property name="service.pid" value="rss.manager"/>
+        <reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1" policy="dynamic" bind="setRealmService" unbind="unsetRealmService"/>
+        <reference name="datasources.service" interface="org.wso2.carbon.ndatasource.core.DataSourceService" cardinality="1..1" policy="dynamic" bind="setDataSourceService" unbind="unsetDataSourceService"/>
+        <reference name="transactionmanager" interface="org.wso2.carbon.transaction.manager.TransactionManagerDummyService" cardinality="1..1" policy="dynamic" bind="setTransactionManagerDummyService" unbind="unsetTransactionManagerDummyService"/>
+        <reference name="secret.callback.handler.service" interface="org.wso2.carbon.securevault.SecretCallbackHandlerService" cardinality="1..1" policy="dynamic" bind="setSecretCallbackHandlerService" unbind="unsetSecretCallbackHandlerService"/>
+        <reference name="registry.service" interface="org.wso2.carbon.registry.core.service.RegistryService" cardinality="1..1" policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"/>
+        <reference name="configurationContext.service" interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1" policy="dynamic" bind="setConfigurationContextService" unbind="unsetConfigurationContextService"/>
+    </scr:component>
+</components>

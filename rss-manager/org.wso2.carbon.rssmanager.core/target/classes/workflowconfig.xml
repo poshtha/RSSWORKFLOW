@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workflowconfig>
+    <serviceendpoint>http://end</serviceendpoint>
+    <callbackurl>http://local</callbackurl>
+    <username>user</username>
+    <password>pass</password>
+    <enabled>false</enabled>
+    <tasks>
+        <task>
+            <name>createdb</name>
+            <enabled>true</enabled>
+            <executor>org.exec</executor>
+        </task>
+        <task>
+            <name>deletdb</name>
+            <enabled>true</enabled>
+            <executor>org.exec.del</executor>
+        </task>
+    </tasks>
+</workflowconfig>
+

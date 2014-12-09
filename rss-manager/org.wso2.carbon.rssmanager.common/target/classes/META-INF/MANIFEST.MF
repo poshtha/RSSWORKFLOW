@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Export-Package: org.wso2.carbon.rssmanager.common.exception;version="4
+ .3.0.SNAPSHOT",org.wso2.carbon.rssmanager.common;uses:="org.wso2.carb
+ on.context,org.apache.commons.codec.binary";version="4.3.0.SNAPSHOT"
+Built-By: poshitha
+Tool: Bnd-1.43.0
+Bundle-Name: org.wso2.carbon.rssmanager.common
+Created-By: Apache Maven Bundle Plugin
+Bundle-Version: 4.3.0.SNAPSHOT
+Build-Jdk: 1.7.0_55
+Bnd-LastModified: 1417603341807
+Bundle-ManifestVersion: 2
+Bundle-Description: RSS Manager Common Bundle
+Import-Package: org.apache.commons.codec.binary;resolution:=optional;v
+ ersion="[1.4,2)",org.wso2.carbon.context;resolution:=optional;version
+ ="[4.3,5)"
+Bundle-SymbolicName: org.wso2.carbon.rssmanager.common
+
