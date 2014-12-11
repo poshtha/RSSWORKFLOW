@@ -26,7 +26,9 @@ import org.wso2.carbon.rssmanager.core.dao.exception.RSSDAOException;
 import org.wso2.carbon.rssmanager.core.dto.common.DatabasePrivilegeSet;
 import org.wso2.carbon.rssmanager.core.dto.common.DatabasePrivilegeTemplate;
 import org.wso2.carbon.rssmanager.core.dto.common.DatabasePrivilegeTemplateEntry;
+import org.wso2.carbon.rssmanager.core.dto.restricted.DatabaseUser;
 import org.wso2.carbon.rssmanager.core.dto.restricted.RSSInstance;
+import org.wso2.carbon.rssmanager.core.dto.restricted.Workflow;
 import org.wso2.carbon.rssmanager.core.environment.dao.DatabasePrivilegeTemplateDAO;
 import org.wso2.carbon.rssmanager.core.environment.dao.EnvironmentDAO;
 import org.wso2.carbon.rssmanager.core.environment.dao.EnvironmentManagementDAO;
@@ -37,6 +39,9 @@ import org.wso2.carbon.rssmanager.core.manager.RSSManager;
 import org.wso2.carbon.rssmanager.core.manager.adaptor.RSSManagerAdaptor;
 import org.wso2.carbon.rssmanager.core.manager.adaptor.RSSManagerAdaptorFactory;
 import org.wso2.carbon.rssmanager.core.util.RSSManagerUtil;
+import org.wso2.carbon.rssmanager.core.workflow.WorkflowConstants;
+import org.wso2.carbon.rssmanager.core.workflow.WorkflowException;
+import org.wso2.carbon.rssmanager.core.workflow.WorkflowManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -504,6 +509,37 @@ public class EnvironmentManager {
 			entry.setPrivilegeTemplate(template);
 			template.setTenantId(tenantId);
 			privilegeTemplateDAO.addDatabasePrivilegeTemplate(template, env.getId());
+			
+			WorkflowManager wm = WorkflowManager.getInstance();
+			boolean wfEnabled =
+			                    wm.isTaskWFEnabled(tenantId, WorkflowConstants.WORKFLOW_RSS_DB_ADD) &&
+			                            wm.isTenentWFEnabled(tenantId);
+			if (wfEnabled) {
+				DatabasePrivilegeTemplate dbPrivTemp =
+				                                       getDatabasePrivilegeTemplate(environmentName,
+				                                                                    template.getName());
+				int dbpID = dbPrivTemp.getId();
+				Workflow wfdto = new Workflow();
+				wfdto.setId(wm.generateWFID());
+				wfdto.addParameter(WorkflowConstants.WF_PAR_TDOM,
+				                   RSSManagerUtil.getTenantDomainFromTenantId(tenantId));
+				wfdto.addParameter(WorkflowConstants.WF_PAR_RSS_ENV, environmentName);
+				wfdto.addParameter(WorkflowConstants.WF_PAR_DATABASE_PRIV_NAME,
+				                   String.valueOf(template.getId()));
+				wfdto.setCallbackURL(wm.getCallbackURL(tenantId));
+				wfdto.setTenantId(tenantId);
+				wfdto.setResourceType(WorkflowConstants.WF_REC_RSS_DB_PRIV_TEMP);
+				wfdto.setResourceId(dbpID);
+				wfdto.setStatus(WorkflowConstants.WORKFLOW_CREATED);
+
+				wm.createWorkflow(wfdto);
+				try {
+					wm.getWorkflowExecutor(tenantId, WorkflowConstants.WORKFLOW_RSS_DB_ADD)
+					  .execute(wfdto);
+				} catch (WorkflowException e) {
+					log.error("Error running workflow executor", e);
+				}
+			}
 		} catch (RSSDAOException e) {
 			String msg = "Error occurred while adding metadata related to " + "database privilege template '" +
 			             template.getName() + "', to RSS metadata " + "repository : " + e.getMessage();

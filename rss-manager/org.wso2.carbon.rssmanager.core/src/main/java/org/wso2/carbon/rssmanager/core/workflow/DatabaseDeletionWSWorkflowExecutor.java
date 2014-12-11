@@ -10,6 +10,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.rssmanager.core.config.WFMessage;
 import org.wso2.carbon.rssmanager.core.config.WFMessage;
 import org.wso2.carbon.rssmanager.core.dao.exception.RSSDAOException;
@@ -106,14 +107,10 @@ public class DatabaseDeletionWSWorkflowExecutor extends WorkflowExecutor {
 					rssDBType = resultSet.getString("RM_DATABASE.TYPE");
 				}
 				wm.updateWFStatus(workflow.getId(), WorkflowConstants.WORKFLOW_APPROVED);
-				Database database = new Database();
-				database.setRssInstanceName(rssInstance);
-				database.setType(rssDBType);
-				database.setWFApproved(true);
-				database.setTenantId(tenantId);
-				database.setName(rssDBname);
+				PrivilegedCarbonContext.startTenantFlow();
+				PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
 				EnvironmentManagementDAOFactory.getEnvironmentManagementDAO().getEnvironmentDAO()
-				                               .getEnvironment(rssEnv).getRSSManagerAdaptor().re
+				                               .getEnvironment(rssEnv).getRSSManagerAdaptor().removeDatabase(rssInstance, rssDBname, rssDBType);
 				                               
 			} catch (SQLException e) {
 				log.error("Error retrieving worklow status", e);
@@ -129,18 +126,6 @@ public class DatabaseDeletionWSWorkflowExecutor extends WorkflowExecutor {
 		}
 		if (WorkflowConstants.WORKFLOW_REJECT.equals(status)) {
 			wm.updateWFStatus(workflow.getId(), WorkflowConstants.WORKFLOW_REJECT);
-			try {
-				conn = RSSManagerUtil.getDataSource().getConnection();
-				String delQuery = "DELETE FROM RM_DATABASE WHERE ID=?";
-				PreparedStatement delQueryStatement = conn.prepareStatement(delQuery);
-				delQueryStatement.setInt(1, wm.getWFResourceID(workflow.getId()));
-				delQueryStatement.executeUpdate();
-			} catch (SQLException e) {
-				log.error("Error deleting metadata table entry", e);
-			} finally {
-				wm.closeStatement(getWFStatusStatement, WorkflowConstants.WORKFLOW_CREATED);
-				wm.closeConnection(conn, WorkflowConstants.WORKFLOW_CREATED);
-			}
 		}
 	}
 

@@ -16,7 +16,7 @@ public class Workflow {
 
 	private String wfStatus;
 
-	private String description;
+	private String description = " ";
 
 	private int tenantId;
 
@@ -30,6 +30,8 @@ public class Workflow {
 
 	private String type;
 	
+	private String resourceType;
+
 	private int resourceId;
 		
 	private long createdtime;
@@ -133,6 +135,14 @@ public class Workflow {
 		this.updatetime = time;
 	}
 	
+	public String getResourceType() {
+		return resourceType;
+	}
+
+	public void setResourceType(String rType) {
+		this.resourceType = rType;
+	}
+
 	public int getResourceId() {
 		return resourceId;
 	}

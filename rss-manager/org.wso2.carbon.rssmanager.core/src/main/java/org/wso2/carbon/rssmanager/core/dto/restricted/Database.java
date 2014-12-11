@@ -37,7 +37,6 @@ public class Database {
 	private RSSInstance rssInstance;
 	private Integer tenantId;
 	private Set<UserDatabaseEntry> userDatabaseEntries;
-    private boolean wfApproved = false;
     
 	public Database(int id, String name, String rssInstanceName, String url, String type) {
 		this.id = id;
@@ -131,11 +130,4 @@ public class Database {
 		this.databaseType = databaseType;
 	}
 	
-	public boolean getWFApproved() {
-		return wfApproved;
-	}
-
-	public void setWFApproved(boolean approved) {
-		this.wfApproved = approved;
-	}
 }

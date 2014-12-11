@@ -239,16 +239,19 @@ public abstract class AbstractRSSManager {
 		if (!wfEnabled) {
 			this.getRSSDAO().getDatabaseDAO().addDatabase(statement, database);
 		} else {
-			if (database.getWFApproved()) {
+			int dbId = getDatabase(database.getType(), database.getName()).getId();
+             String status = wm.getWFStatusByRID(dbId, WorkflowConstants.WF_REC_RSS_DB);;
+			if (WorkflowConstants.WORKFLOW_APPROVED.equals(status)) {
 				try {
 					statement.executeUpdate();
 				} catch (SQLException e) {
-					log.error("Error completing workflow approval", e);
+					log.error("Error runing native query", e);
 				}
-			} else {
+			}
+             if(WorkflowConstants.WORKFLOW_NONE.equals(status)){
 				this.getRSSDAO().getDatabaseDAO()
 				    .addDatabase(WorkflowConstants.WORKFLOW_NATIVE_STMNT, database);
-				int dbId = getDatabase(database.getType(), database.getName()).getId();
+				dbId = getDatabase(database.getType(), database.getName()).getId();
 				Workflow wfdto = new Workflow();
 				wfdto.setId(wm.generateWFID());
 				wfdto.addParameter(WorkflowConstants.WF_PAR_TDOM,
@@ -256,9 +259,14 @@ public abstract class AbstractRSSManager {
 				wfdto.addParameter(WorkflowConstants.WF_PAR_RSS_INS_NAME,
 				                   database.getRssInstanceName());
 				wfdto.addParameter(WorkflowConstants.WF_PAR_RSS_INS_TYPE, database.getType());
+				wfdto.addParameter(WorkflowConstants.WF_PAR_DATABASE_NAME, database.getName());
 				wfdto.addParameter(WorkflowConstants.WF_PAR_USERNAME, RSSManagerUtil.getUsername());
 				wfdto.setCallbackURL(wm.getCallbackURL(tenantId));
-
+                wfdto.setTenantId(tenantId);
+                wfdto.setResourceType(WorkflowConstants.WF_REC_RSS_DB);
+                wfdto.setResourceId(dbId);
+                wfdto.setStatus(WorkflowConstants.WORKFLOW_CREATED);
+                
 				wm.createWorkflow(wfdto);
 				try {
 					wm.getWorkflowExecutor(tenantId, WorkflowConstants.WORKFLOW_RSS_DB_ADD)
@@ -266,7 +274,7 @@ public abstract class AbstractRSSManager {
 				} catch (WorkflowException e) {
 					log.error("Error running workflow executor", e);
 				}
-			}
+             }
 		}
 
 		return database;
@@ -356,23 +364,58 @@ public abstract class AbstractRSSManager {
 	 * @throws RSSManagerException
 	 * @throws RSSDAOException
 	 */
-	protected void removeDatabase(PreparedStatement statement, String rssInstanceName, String databaseName,
-	                              RSSInstance rssInstance, String instanceType) throws RSSManagerException, RSSDAOException {
+	protected void removeDatabase(PreparedStatement statement, String rssInstanceName,
+	                              String databaseName, RSSInstance rssInstance, String instanceType)
+	                                                                                                throws RSSManagerException,
+	                                                                                                RSSDAOException {
 
 		int tenantId = RSSManagerUtil.getTenantId();
 		DatabaseDAO dao = this.getRSSDAO().getDatabaseDAO();
 		Database database =
-				dao.getDatabase(getEnvironmentName(), rssInstanceName, databaseName, tenantId, instanceType);
-		
+		                    dao.getDatabase(getEnvironmentName(), rssInstanceName, databaseName,
+		                                    tenantId, instanceType);
+
 		WorkflowManager wm = WorkflowManager.getInstance();
 		boolean wfEnabled =
 		                    wm.isTaskWFEnabled(tenantId, WorkflowConstants.WORKFLOW_RSS_DB_ADD) &&
 		                            wm.isTenentWFEnabled(tenantId);
 		if (!wfEnabled) {
-			this.getRSSDAO().getUserDatabaseEntryDAO().removeUserDatabaseEntriesByDatabase(database.getId());
+			this.getRSSDAO().getUserDatabaseEntryDAO()
+			    .removeUserDatabaseEntriesByDatabase(database.getId());
 			this.getRSSDAO().getDatabaseDAO().removeDatabase(statement, database);
-		} else {			
-			 Database db = dao.ge	                              	    
+		} else {
+			int dbId = getDatabase(database.getType(), database.getName()).getId();
+            String status = wm.getWFStatusByRID(dbId, WorkflowConstants.WF_REC_RSS_DB);
+            if(WorkflowConstants.WORKFLOW_APPROVED.equals(status)){
+           	 try {
+	                statement.executeUpdate();
+               } catch (SQLException e) {
+               	log.error("Error runing native query", e);
+                }
+            }
+            if(WorkflowConstants.WORKFLOW_NONE.equals(status)){
+			Workflow wfdto = new Workflow();
+			wfdto.setId(wm.generateWFID());
+			wfdto.addParameter(WorkflowConstants.WF_PAR_TDOM,
+			                   RSSManagerUtil.getTenantDomainFromTenantId(tenantId));
+			wfdto.addParameter(WorkflowConstants.WF_PAR_RSS_INS_NAME, database.getRssInstanceName());
+			wfdto.addParameter(WorkflowConstants.WF_PAR_RSS_INS_TYPE, database.getType());
+			wfdto.addParameter(WorkflowConstants.WF_PAR_DATABASE_NAME, database.getName());
+			wfdto.addParameter(WorkflowConstants.WF_PAR_USERNAME, RSSManagerUtil.getUsername());
+			wfdto.setCallbackURL(wm.getCallbackURL(tenantId));
+			wfdto.setTenantId(tenantId);
+            wfdto.setResourceType(WorkflowConstants.WF_REC_RSS_DB);
+			wfdto.setResourceId(dbId);
+			wfdto.setStatus(WorkflowConstants.WORKFLOW_CREATED);
+
+			wm.createWorkflow(wfdto);
+			try {
+				wm.getWorkflowExecutor(tenantId, WorkflowConstants.WORKFLOW_RSS_DB_ADD)
+				  .execute(wfdto);
+			} catch (WorkflowException e) {
+				log.error("Error running workflow executor", e);
+			}
+           }
 		}
 
 	}
@@ -507,6 +550,7 @@ public abstract class AbstractRSSManager {
 		final int tenantId = RSSManagerUtil.getTenantId();
 		user.setTenantId(tenantId);
 		this.getRSSDAO().getDatabaseUserDAO().addDatabaseUser(statement, user);
+
 		return user;
 	}
 
@@ -564,6 +608,38 @@ public abstract class AbstractRSSManager {
 		user.setInstances(servers);
 		user.setTenantId(tenantId);
 		this.getRSSDAO().getDatabaseUserDAO().addDatabaseUser(statement, user);
+
+		WorkflowManager wm = WorkflowManager.getInstance();
+		boolean wfEnabled =
+		                    wm.isTaskWFEnabled(tenantId, WorkflowConstants.WORKFLOW_RSS_DB_ADD) &&
+		                            wm.isTenentWFEnabled(tenantId);
+		if (wfEnabled) {
+			DatabaseUser dbUser =
+			                      getDatabaseUser(user.getRssInstanceName(), user.getUsername(),
+			                                      instanceType);
+			int userID = dbUser.getId();
+			Workflow wfdto = new Workflow();
+			wfdto.setId(wm.generateWFID());
+			wfdto.addParameter(WorkflowConstants.WF_PAR_TDOM,
+			                   RSSManagerUtil.getTenantDomainFromTenantId(tenantId));
+			wfdto.addParameter(WorkflowConstants.WF_PAR_RSS_INS_NAME, user.getRssInstanceName());
+			wfdto.addParameter(WorkflowConstants.WF_PAR_RSS_INS_TYPE, instanceType);
+			wfdto.addParameter(WorkflowConstants.WF_PAR_DATABASE_USERNAME, user.getUsername());
+			wfdto.setCallbackURL(wm.getCallbackURL(tenantId));
+			wfdto.setTenantId(tenantId);
+			wfdto.setResourceType(WorkflowConstants.WF_REC_RSS_DB_USER);
+			wfdto.setResourceId(userID);
+			wfdto.setStatus(WorkflowConstants.WORKFLOW_CREATED);
+
+			wm.createWorkflow(wfdto);
+			try {
+				wm.getWorkflowExecutor(tenantId, WorkflowConstants.WORKFLOW_RSS_DB_ADD)
+				  .execute(wfdto);
+			} catch (WorkflowException e) {
+				log.error("Error running workflow executor", e);
+			}
+		}
+				
 		return user;
 	}
 

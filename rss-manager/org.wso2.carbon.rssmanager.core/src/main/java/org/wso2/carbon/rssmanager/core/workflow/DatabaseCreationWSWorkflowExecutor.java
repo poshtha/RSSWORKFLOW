@@ -10,6 +10,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.rssmanager.core.config.WFMessage;
 import org.wso2.carbon.rssmanager.core.config.WFMessage;
 import org.wso2.carbon.rssmanager.core.dao.exception.RSSDAOException;
@@ -65,9 +66,7 @@ public class DatabaseCreationWSWorkflowExecutor extends WorkflowExecutor {
 		password = wm.getPassword(workflow.getTenantId());
 		setOptions();
 		try {
-
 			client.fireAndForget(AXIOMUtil.stringToOM(payload));
-
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
 		} catch (Exception e) {
@@ -109,9 +108,10 @@ public class DatabaseCreationWSWorkflowExecutor extends WorkflowExecutor {
 				Database database = new Database();
 				database.setRssInstanceName(rssInstance);
 				database.setType(rssDBType);
-				database.setWFApproved(true);
 				database.setTenantId(tenantId);
 				database.setName(rssDBname);
+				PrivilegedCarbonContext.startTenantFlow();
+				PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
 				EnvironmentManagementDAOFactory.getEnvironmentManagementDAO().getEnvironmentDAO()
 				                               .getEnvironment(rssEnv).getRSSManagerAdaptor()
 				                               .addDatabase(database);

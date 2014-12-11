@@ -57,12 +57,12 @@ public class WorkflowConfigFactory implements Serializable {
 
 	private static final QName ATT_NAME = new QName("name");
 
-	private Map<String, WorkflowExecutor> workflowExecutorMap = new HashMap(); ;
+	private Map<String, WorkflowExecutor> workflowExecutorMap = new HashMap();;
 
 	private static WorkflowConfigFactory thisInstance = new WorkflowConfigFactory();
 
 	public WorkflowConfigFactory() {
-		
+
 	}
 
 	public WorkflowExecutor getWorkflowExecutor(String workflowExecutorType) {
@@ -72,43 +72,10 @@ public class WorkflowConfigFactory implements Serializable {
 	public static WorkflowConfigFactory getInstance() {
 		return thisInstance;
 	}
-	
-	public void addWorkflow(Workflow wfDTO){
-		
+
+	public void addWorkflow(Workflow wfDTO) {
+
 	}
-
-	public void load(CarbonContext carbonContext) {
-
-		int tid;
-       
-		try {
-	        tid = RSSManagerDataHolder.getInstance().getTenantId();
-			Registry registry = RSSManagerDataHolder.getInstance().getRegistry();
-			Resource resource = registry.get(WorkflowConstants.WORKFLOW_CONFIG);
-
-			InputStream in = resource.getContentStream();
-
-			JAXBContext context = JAXBContext.newInstance(WorkflowExecutorConfig.class);
-			Unmarshaller um = context.createUnmarshaller();
-			WorkflowExecutorConfig wfConfig = (WorkflowExecutorConfig) um.unmarshal(in);
-			List<WorkflowType> wfTasks = wfConfig.getTasks();
-			for (WorkflowType task : wfTasks) {
-				task.loadExecutor();
-				task.getExecutor().setWFTask(task.getName());
-			}
-			wfConfig.setTasks(wfTasks);
-
-		//	RSSManagerDataHolder.getInstance().addWorkFlowConfig(Integer.toString(tid), wfConfig);
-
-		} catch (RegistryException e) {
-			log.error("Error accessing tenant registry", e);
-		} catch (JAXBException e) {
-			log.error("Error accessing reading configuration", e);
-		} catch (Exception e) {
-			log.error("Error loading executor", e);
-		}
-	}
-
 
 	private static void handleException(String msg) throws WorkflowException {
 		log.error(msg);
@@ -119,19 +86,18 @@ public class WorkflowConfigFactory implements Serializable {
 		log.error(msg, e);
 		throw new WorkflowException(msg, e);
 	}
-	
-	
-	public static void main(String args[]){
-		
+
+	public static void main(String args[]) {
+
 		DatabaseCreationWSWorkflowExecutor db = new DatabaseCreationWSWorkflowExecutor();
 		Workflow w = new Workflow();
 		w.setCallbackURL("http://");
 		w.setTenantId(2134321);
 		w.setType("RSS");
 		w.addParameter("user", "bob");
-	//	db.buildSOAPMessage(w);
-		
-		WorkflowType wft ;
+		// db.buildSOAPMessage(w);
+
+		WorkflowType wft;
 		List<WorkflowType> wftasks = new ArrayList<WorkflowType>();
 
 		wft = new WorkflowType();
@@ -139,28 +105,28 @@ public class WorkflowConfigFactory implements Serializable {
 		wft.setExecutorName("org.exec");
 		wft.setEnabled(true);
 		wftasks.add(wft);
-		
+
 		wft = new WorkflowType();
 		wft.setName("deletdb");
 		wft.setExecutorName("org.exec.del");
 		wft.setEnabled(true);
 		wftasks.add(wft);
-		
+
 		WorkflowExecutorConfig wfconf = new WorkflowExecutorConfig();
 		wfconf.setCallbackURL("http://local");
 		wfconf.setServiceEndpoint("http://end");
 		wfconf.setGlobalUsername("user");
 		wfconf.setGlobalPassword("pass");
-        wfconf.setTasks(wftasks);
-		
+		wfconf.setTasks(wftasks);
+
 		JAXBContext context;
 		try {
 			context = JAXBContext.newInstance(WorkflowExecutorConfig.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-		    StringWriter wr = new StringWriter();
+			StringWriter wr = new StringWriter();
 			m.marshal(wfconf, wr);
-            System.out.println(wr.toString());
+			System.out.println(wr.toString());
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}

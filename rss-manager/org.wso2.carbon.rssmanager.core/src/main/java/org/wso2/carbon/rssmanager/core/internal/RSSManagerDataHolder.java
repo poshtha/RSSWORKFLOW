@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.rssmanager.core.internal;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.axiom.om.OMDocument;
@@ -59,7 +60,7 @@ public class RSSManagerDataHolder {
 
 	private ConfigurationContextService contextService;
 
-    private Map<Integer, WorkflowExecutorConfig> workflowExecutorConfigTenantMap;
+    private Map<Integer, WorkflowExecutorConfig> workflowExecutorConfigTenantMap = new HashMap();
 
 	private RSSManagerDataHolder() {
 	}

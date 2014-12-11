@@ -94,21 +94,6 @@ public class WorkflowManager {
 		}
 	}
 
-	/*
-	 * public String getCurrentTask(){
-	 * String task = null;
-	 * 
-	 * StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-	 * for(StackTraceElement element: stack){
-	 * if(element.getClassName().contains(
-	 * "org.wso2.carbon.rssmanager.core.service.RSSAdmin")){
-	 * task = element.getMethodName();
-	 * }
-	 * }
-	 * return task;
-	 * }
-	 */
-
 	public boolean isTenentWFEnabled(int tid) {
 		return RSSManagerDataHolder.getInstance().getWorkFlowConfig(tid).getGlobalEnabled();
 	}
@@ -148,7 +133,8 @@ public class WorkflowManager {
 		PreparedStatement updateWFStatusStatement = null;
 		try {
 			conn = dataSource.getConnection();
-			String updateWFStatusQuery = "UPDATE RM_WORKFLOW SET STATUS=? WHERE WFID = ?";
+			String updateWFStatusQuery =
+			                             "UPDATE RM_WORKFLOW SET STATUS=?, UPDATE_TIME=NOW() WHERE WFID = ?";
 			updateWFStatusStatement = conn.prepareStatement(updateWFStatusQuery);
 			updateWFStatusStatement.setString(1, status);
 			updateWFStatusStatement.setInt(2, wfId);
@@ -209,17 +195,18 @@ public class WorkflowManager {
 		return resId;
 	}
 
-	public String getWFStatusByRID(int resId) {
+	public String getWFStatusByRID(int resId, String resType) {
 
 		Connection conn = null;
 		PreparedStatement getWFStatusStatement = null;
 		ResultSet resultSet = null;
-		String status = "";
+		String status = "NONE";
 		try {
 			conn = dataSource.getConnection();
-			String getWFStatusQuery = "SELECT STATUS FROM RM_WORKFLOW WHERE RESOURCE_ID = ?";
+			String getWFStatusQuery = "SELECT STATUS FROM RM_WORKFLOW WHERE RESOURCE_ID = ? AND RESOURCE_TYPE = ?";
 			getWFStatusStatement = conn.prepareStatement(getWFStatusQuery);
 			getWFStatusStatement.setInt(1, resId);
+			getWFStatusStatement.setString(2, resType);;
 			resultSet = getWFStatusStatement.executeQuery();
 			while (resultSet.next()) {
 				status = resultSet.getString("STATUS");
@@ -240,17 +227,16 @@ public class WorkflowManager {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			String addWFQuery =
-			                    "INSERT INTO RM_WORKFLOW(WFID, TYPE , TENANT_ID, TENANT_DOMAIN, CREATE_TIME, UPDATE_TIME, RESOURCE_ID, STATUS) VALUES (?,?,?,?,?,?,?)";
+			                    "INSERT INTO RM_WORKFLOW(WFID, TYPE , TENANT_ID, TENANT_DOMAIN, CREATE_TIME, UPDATE_TIME, RESOURCE_ID, STATUS, DESCRIPTION, RESOURCE_TYPE) VALUES (?,?,?,?,NOW(),NOW(),?,?,?)";
 			addWFStatement = conn.prepareStatement(addWFQuery);
 			addWFStatement.setInt(1, wfInfo.getId());
 			addWFStatement.setString(2, wfInfo.getType());
 			addWFStatement.setInt(3, wfInfo.getTenantId());
 			addWFStatement.setString(4, wfInfo.getTenantDomain());
-			addWFStatement.setLong(5, wfInfo.getCreateTime());
-			addWFStatement.setLong(6, wfInfo.getUpdateTime());
-			addWFStatement.setInt(7, wfInfo.getResourceId());
-			addWFStatement.setString(8, wfInfo.getStatus());
-
+			addWFStatement.setInt(5, wfInfo.getResourceId());
+			addWFStatement.setString(6, wfInfo.getStatus());
+			addWFStatement.setString(7, wfInfo.getDescribtion());
+			addWFStatement.setString(8, wfInfo.getResourceType());
 			addWFStatement.executeUpdate();
 			conn.commit();
 		} catch (SQLException e) {

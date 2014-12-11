@@ -39,8 +39,8 @@ Export-Package: org.wso2.carbon.rssmanager.core.manager.impl.sqlserver
  bon.rssmanager.core.util,org.wso2.carbon.rssmanager.core.dao.exceptio
  n,org.wso2.carbon.rssmanager.core.environment,org.wso2.carbon.rssmana
  ger.core.environment.dao",org.wso2.carbon.rssmanager.core.workflow;us
- es:="org.apache.axis2.addressing,org.wso2.carbon.rssmanager.core.conf
- ig,org.apache.axis2.transport.http,org.apache.commons.logging,org.wso
+ es:="org.wso2.carbon.rssmanager.core.config,org.apache.axis2.addressi
+ ng,org.apache.axis2.transport.http,org.apache.commons.logging,org.wso
  2.carbon.rssmanager.core.dto.restricted,javax.xml.namespace,org.apach
  e.axis2.description,org.wso2.carbon.rssmanager.core.util,org.wso2.car
  bon.rssmanager.core.dao.exception,org.wso2.carbon.rssmanager.core.man
@@ -125,15 +125,16 @@ Export-Package: org.wso2.carbon.rssmanager.core.manager.impl.sqlserver
  n.rssmanager.core.environment;uses:="org.wso2.carbon.rssmanager.core.
  config,org.wso2.carbon.rssmanager.core.config.datasource,org.apache.c
  ommons.logging,org.wso2.carbon.rssmanager.core.exception,org.wso2.car
- bon.rssmanager.core.dto.common,org.wso2.carbon.rssmanager.core.dto.re
- stricted,org.wso2.carbon.rssmanager.core,org.wso2.carbon.rssmanager.c
- ore.util,org.wso2.carbon.rssmanager.core.dao.exception,javax.xml.bind
- .annotation,org.wso2.carbon.rssmanager.core.manager.adaptor,org.wso2.
- carbon.rssmanager.core.environment.dao",org.wso2.carbon.rssmanager.co
- re.environment.dao;uses:="org.wso2.carbon.rssmanager.core.environment
- .dao.impl,org.wso2.carbon.rssmanager.core.dao.exception,org.wso2.carb
- on.rssmanager.core.dto.restricted,org.wso2.carbon.rssmanager.core.dto
- .common,org.wso2.carbon.rssmanager.core.environment"
+ bon.rssmanager.core.workflow,org.wso2.carbon.rssmanager.core.dto.comm
+ on,org.wso2.carbon.rssmanager.core.dto.restricted,org.wso2.carbon.rss
+ manager.core,org.wso2.carbon.rssmanager.core.util,org.wso2.carbon.rss
+ manager.core.dao.exception,javax.xml.bind.annotation,org.wso2.carbon.
+ rssmanager.core.manager.adaptor,org.wso2.carbon.rssmanager.core.envir
+ onment.dao",org.wso2.carbon.rssmanager.core.environment.dao;uses:="or
+ g.wso2.carbon.rssmanager.core.environment.dao.impl,org.wso2.carbon.rs
+ smanager.core.dao.exception,org.wso2.carbon.rssmanager.core.dto.restr
+ icted,org.wso2.carbon.rssmanager.core.dto.common,org.wso2.carbon.rssm
+ anager.core.environment"
 Private-Package: org.wso2.carbon.rssmanager.core.internal
 Ignore-Package: org.wso2.carbon.rssmanager.core.internal
 Built-By: poshitha
@@ -145,7 +146,7 @@ Meta-Persistence: META-INF/persistence.xml
 DynamicImport-Package: *
 Build-Jdk: 1.7.0_55
 Bundle-Version: 4.3.0.SNAPSHOT
-Bnd-LastModified: 1418122755760
+Bnd-LastModified: 1418291966903
 Bundle-ManifestVersion: 2
 Bundle-Description: RSS Manager Core Bundle
 Bundle-SymbolicName: org.wso2.carbon.rssmanager.core

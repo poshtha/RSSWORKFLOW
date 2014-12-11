@@ -49,6 +49,8 @@ public class WorkflowConstants {
 
 	public static final String WORKFLOW_REJECT = "REJECT";
 
+	public static final String WORKFLOW_NONE = "NONE";
+
 	public static final String WORKFLOW_MES_DESC = "description";
 
 	public static final String WORKFLOW_MES_WFID = "workflowID";
@@ -68,9 +70,25 @@ public class WorkflowConstants {
 
 	public static final String WF_PAR_RSS_INS_NAME = "RSS Instance Name";
 
+	public static final String WF_PAR_RSS_ENV = "RSS Environment";
+
 	public static final String WF_PAR_RSS_INS_TYPE = "RSS Instance Type";
+	
+	public static final String WF_PAR_DATABASE_NAME = "Database Name";
+
+	public static final String WF_PAR_DATABASE_PRIV_NAME = "Database Privilede Template Name";
+
+	public static final String WF_PAR_DATABASE_PRIV_ENTRIES = "Database Privilede Template Entries";
+
+	public static final String WF_PAR_DATABASE_USERNAME = "Database Username";
 
 	public static final String WF_PAR_USERNAME = "Username";
+
+	public static final String WF_REC_RSS_DB = "rss_database";
+
+	public static final String WF_REC_RSS_DB_PRIV_TEMP = "rss_database_priv_temp";
+
+	public static final String WF_REC_RSS_DB_USER = "rss_database_user";
 
 	public static final PreparedStatement WORKFLOW_NATIVE_STMNT = null;
 
